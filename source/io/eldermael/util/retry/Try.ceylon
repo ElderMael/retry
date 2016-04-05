@@ -28,7 +28,7 @@ shared class Try<out Result> {
 	shared Result|Exception result() => this.computationResult;
 	
 	"Applies the [[mappingFunction]] to the result of the computation if and only if the computation was successful and returns a new [[Try]] instance.
-	                                  If the mapping function fails i.e. throws an Exception, this Exception is given as the result of the new instance returned."
+	                                                                   If the mapping function fails i.e. throws an Exception, this Exception is given as the result of the new instance returned."
 	shared Try<MappingResult> map<MappingResult>(MappingResult(Result) mappingFunction) {
 		if (is Exception computationResult) {
 			return Try<MappingResult>.withComputationResult(computationResult);
@@ -56,7 +56,7 @@ shared class Try<out Result> {
 	}
 	
 	"Returns a new instance containing the result if the [[predicate]] returns true else it returns 
-	    an instance with an Exception as result unless the result was already an Exception."
+	                                     an instance with an Exception as result unless the result was already an Exception."
 	shared Try<Result> filter(Boolean(Result) predicate) {
 		if (is Exception computationResult) {
 			return Try<Result>.withComputationResult(computationResult);
@@ -73,6 +73,24 @@ shared class Try<out Result> {
 			}
 		} catch (Exception e) {
 			return Try<Result>.withComputationResult(e);
+		}
+	}
+	
+	shared Try<Result|RecoverValue> recoverWith<RecoverValue>(RecoverValue|RecoverValue(Exception) recover) {
+		if (is Result computationResult) {
+			return Try.withComputationResult(computationResult);
+		}
+		
+		try {
+			
+			if (is RecoverValue recover) {
+				return Try.withComputationResult(recover);
+			} else {
+				value recoveryValue = recover(computationResult);
+				return Try.withComputationResult(recoveryValue);
+			}
+		} catch (Exception e) {
+			return Try<Result|RecoverValue>.withComputationResult(e);
 		}
 	}
 }

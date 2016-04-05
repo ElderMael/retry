@@ -161,3 +161,28 @@ shared void shouldReturnExceptionIfPredicateThrows() {
 	// then
 	assert (is Exception filtered, filtered.message == "ouchies!");
 }
+
+test
+shared void shouldReturnRecoveryWhenComputationFails() {
+	// given
+	value failure = Try(failedComputation);
+	value ack = "ACK";
+	
+	// when
+	value recovery = failure.recoverWith(ack).result();
+	
+	// then
+	assert (ack == recovery);
+}
+
+test
+shared void shouldExecuteRecoveryFunctionWhenComputationFails() {
+	// given
+	value failure = Try(failedComputation);
+	
+	// when 
+	String|String(Exception)|Exception recoverWith = failure.recoverWith((Exception a) => a.message).result();
+	
+	// then
+	assert (recoverWith == "failed");
+}
